@@ -1,0 +1,106 @@
+version: "3.7"
+name: laravel
+services:
+    nginx:
+        image: nginx:alpine
+        container_name: nginx
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "8080:80"
+        volumes:
+            - ./.docker/nginx:/etc/nginx/conf.d/
+            - ./:/var/www/backend
+        depends_on:
+            - php
+        networks:
+            - laravel-net
+
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: php
+        # image: my-laravel-app
+        restart: unless-stopped
+        tty: true
+        # volumes:
+            # - ./:/var/www/backend
+        networks:
+            - laravel-net
+    # php:
+    #     build:
+    #         args:
+    #             user: laravel
+    #             uid: 1000
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     container_name: php
+    #     restart: unless-stopped
+    #     tty: true
+    #     expose:
+    #         - "9000"
+    #     working_dir: /var/www/backend
+    #     ports:
+    #         - "9000:9000"
+    #     volumes:
+    #         - ./:/var/www/backend
+    #         #- ./.docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    #     networks:
+    #         - laravel-net
+        # depends_on:
+        #     - nginx
+        #     - redis
+        #     - database
+
+
+    # database:
+    #     image: mariadb:latest
+    #     container_name: database
+    #     restart: unless-stopped
+    #     environment:
+    #         MYSQL_DATABASE: ${DB_DATABASE}
+    #         MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    #         MYSQL_PASSWORD: ${DB_PASSWORD}
+    #         MYSQL_USER: ${DB_USERNAME}
+    #         SERVICE_TAGS: dev
+    #         SERVICE_NAME: mysql
+    #     volumes:
+    #         - ./.docker/data/mysql:/var/lib/mysql
+    #         # - ./.docker/mysql/my.cnf:/etc/mysql/my.cnf
+    #     ports:
+    #         - "3306:3306"
+    #     networks:
+    #         - laravel-net
+
+    # phpmyadmin:
+    #     image: phpmyadmin:latest
+    #     container_name: pma
+    #     restart: always
+    #     environment:
+    #         MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    #         PMA_HOST: database
+    #         # PMA_ARBITRARY: 1 ## server box show
+    #     depends_on:
+    #         - database
+    #     ports:
+    #         - "8090:80"
+    #     # volumes:
+    #     #     - /sessions
+    #     networks:
+    #         - laravel-net
+
+    # redis:
+    #     image: redis:latest
+    #     container_name: redis
+    #     command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+    #     volumes:
+    #         - ./.docker/data/redis:/data
+    #     ports:
+    #         - "6379:6379"
+    #     networks:
+    #         - laravel-net
+
+networks:
+    laravel-net:
+        driver: bridge
